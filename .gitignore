@@ -3,7 +3,6 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,flask
 test_storage
 venv
-.service
 __services__
 __tensor__
 __cache__

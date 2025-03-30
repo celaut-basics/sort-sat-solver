@@ -1,0 +1,8 @@
+{
+    "api": [{"port":9999, "protocol":["http2","grpc"]}],
+    "architecture": "aarch64",
+    "entrypoint": "/regresioncnf/start.sh",
+    "envs": [
+        "MAX_REGRESSION_DEGREE"
+    ]
+}
