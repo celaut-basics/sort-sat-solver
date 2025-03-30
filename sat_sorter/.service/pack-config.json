@@ -6,8 +6,8 @@
   "zip": true,
   "ignore_loadable_protobuf": true,
   "dependencies": {
-      "REGRESION": "e8cf72ad3dd57e581b0b8a7a79d5389418bc28afb06a1569ccefdd4325658971",
-      "RANDOM": "a300f8fef15fb6e236f368d45cdefd833eb811f7b9cc6aec20ea8317a6005035"
+      "REGRESION": "dependencies/regresion_cnf",
+      "RANDOM": "dependencies/random_cnf_generator"
    },
   "include": [
     "protos",
