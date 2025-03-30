@@ -1,4 +1,5 @@
 {
+    "tag": "sort-sat-sorter",
     "api": [{"port":8081, "protocol":["http2","grpc"]}],
     "architecture": "aarch64",
     "entrypoint": "/satsorter/start.sh",
