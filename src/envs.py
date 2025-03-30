@@ -36,23 +36,17 @@ logging.basicConfig(filename='../app.log', level=logging.DEBUG, format='%(asctim
 LOGGER = lambda message: logging.getLogger().debug(message + '\n') if not DEV_MODE else print(message + '\n')
 DIR = '/satsorter/' if not DEV_MODE else ''
 
-# TODO should include .service/pre-compile.json inside the service during compilation.
-# with open(os.path.join(DIR, ".service/pre-compile.json")) as pre_compile:
-#    _js = json.load(pre_compile)
+env_vars = {}
+with open(os.path.join(DIR, ".dependencies")) as f:
+    for line in f:
+        key, value = line.strip().split("=")
+        env_vars[key] = value
 
-_js = {
-    "service_dependencies_directory": "__services__",
-    "metadata_dependencies_directory": "__metadata__",
-    "blocks_directory": "__block__",
-    "dependencies": {
-        "REGRESION": "e8cf72ad3dd57e581b0b8a7a79d5389418bc28afb06a1569ccefdd4325658971",
-        "RANDOM": "a300f8fef15fb6e236f368d45cdefd833eb811f7b9cc6aec20ea8317a6005035"
-    },
-    "zip": True
-}
+REGRESSION_SHA3_256 = env_vars.get("REGRESSION", None)  # From .dependencies REGRESSION
+RANDOM_SHA3_256 = env_vars.get("RANDOM", None)  # From .dependencies RANDOM
 
-REGRESSION_SHA3_256 = _js['dependencies']['REGRESION']
-RANDOM_SHA3_256 = _js['dependencies']['RANDOM']
+with open(os.path.join(DIR, ".service/pack-config.json")) as config:
+    _js = json.load(config)
 
 BLOCK_DIRECTORY = _js["blocks_directory"]
 SERVICE_DIRECTORY = _js["service_dependencies_directory"]

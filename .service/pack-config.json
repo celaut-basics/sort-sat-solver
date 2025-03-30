@@ -6,13 +6,15 @@
   "zip": true,
   "ignore_loadable_protobuf": true,
   "dependencies": {
-      "REGRESION": "dependencies/regresion_cnf",
-      "RANDOM": "dependencies/random_cnf_generator"
-   },
+    "REGRESION": "dependencies/regresion_cnf",
+    "RANDOM": "dependencies/random_cnf_generator"
+  },
+  "dependencies_env": true,
   "include": [
     "protos",
     "src",
     "__init__.py",
-    "start.sh"
+    "start.sh",
+    ".service/pack-config.json"
   ]
 }
