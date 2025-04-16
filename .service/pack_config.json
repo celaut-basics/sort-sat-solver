@@ -15,6 +15,6 @@
     "src",
     "__init__.py",
     "start.sh",
-    ".service/pack-config.json"
+    ".service/pack_config.json"
   ]
 }

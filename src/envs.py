@@ -45,7 +45,7 @@ with open(os.path.join(DIR, ".dependencies")) as f:
 REGRESSION_SHA3_256 = env_vars.get("REGRESSION", None)  # From .dependencies REGRESSION
 RANDOM_SHA3_256 = env_vars.get("RANDOM", None)  # From .dependencies RANDOM
 
-with open(os.path.join(DIR, ".service/pack-config.json")) as config:
+with open(os.path.join(DIR, ".service/pack_config.json")) as config:
     _js = json.load(config)
 
 BLOCK_DIRECTORY = _js["blocks_directory"]
