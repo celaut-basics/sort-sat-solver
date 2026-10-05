@@ -2,18 +2,22 @@ syntax = "proto3";
 
 package dataset;
 
+// A copy of protos/solvers_dataset.proto without SolverConfiguration, so that
+// this service does not need celaut.proto.
+
+// The mean score of a solver configuration for one CNF shape.
 message Data {
-    float score = 1;
-    int32 index = 2;
+    float score = 1;  // Mean score. Higher is better.
+    int32 index = 2;  // Number of samples in the mean.
 }
 
 message DataSetInstance {
-    bytes configuration_hash = 1;
-    bytes service_hash = 2;
-    map<string, Data> data = 3;  // string is a cnf.
+    bytes configuration_hash = 1;  // SHA3-256 of the SolverConfiguration.
+    bytes service_hash = 2;  // SHA3-256 id of the solver service.
+    map<string, Data> data = 3;  // The key is a CNF shape: "<clauses>:<variables>".
 }
 
 message DataSet {
-    // identifica el Solver con una configuracion determinada.( hash.value.hex() ) de sha3-256
+    // One instance for each solver configuration.
     repeated DataSetInstance data = 1;
 }

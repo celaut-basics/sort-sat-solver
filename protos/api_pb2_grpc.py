@@ -107,7 +107,7 @@ class SolverServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def GetDataSet(self, request_iterator, context):
-        """Hasta que se implemente AddTensor.
+        """Until AddTensor is implemented.
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')

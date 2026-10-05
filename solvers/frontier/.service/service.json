@@ -1,6 +1,25 @@
 {
-    "api": [{"port":8080, "protocol":["http2","grpc"]}],
-    "architecture": "aarch64",
-    "entrypoint": "/frontier/start.sh",
-    "envs": []
+    "tag": "frontier-sat-solver",
+    "architecture": "linux/arm64",
+    "init": {
+        "entry_path": ["frontier", "start.sh"]
+    },
+    "api": [
+        {
+            "port": 8080,
+            "transport": "tcp",
+            "protocol": ["http2", "grpc"]
+        }
+    ],
+    "envs": [
+        "FRONTIER_TIMEOUT"
+    ],
+    "resources": {
+        "at_init": {
+            "mem_limit": 134217728
+        },
+        "at_most": {
+            "mem_limit": 536870912
+        }
+    }
 }

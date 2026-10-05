@@ -1,9 +1,26 @@
 {
     "tag": "regresion-cnf",
-    "api": [{"port":9999, "protocol":["http2","grpc"]}],
-    "architecture": "aarch64",
-    "entrypoint": "/regresioncnf/start.sh",
+    "architecture": "linux/arm64",
+    "init": {
+        "entry_path": ["regresioncnf", "start.sh"]
+    },
+    "api": [
+        {
+            "port": 9999,
+            "transport": "tcp",
+            "protocol": ["http2", "grpc"]
+        }
+    ],
     "envs": [
-        "MAX_REGRESSION_DEGREE"
-    ]
+        "MAX_REGRESSION_DEGREE",
+        "MIN_SAMPLES"
+    ],
+    "resources": {
+        "at_init": {
+            "mem_limit": 402653184
+        },
+        "at_most": {
+            "mem_limit": 1073741824
+        }
+    }
 }

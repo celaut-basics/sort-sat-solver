@@ -6,9 +6,7 @@ from bee_rpc import buffer_pb2 as buffer__pb2
 
 
 class RegresionStub(object):
-    """GRPC.
-
-    """
+    """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
         """Constructor.
@@ -29,9 +27,7 @@ class RegresionStub(object):
 
 
 class RegresionServicer(object):
-    """GRPC.
-
-    """
+    """Missing associated documentation comment in .proto file."""
 
     def StreamLogs(self, request_iterator, context):
         """Missing associated documentation comment in .proto file."""
@@ -66,9 +62,7 @@ def add_RegresionServicer_to_server(servicer, server):
 
  # This class is part of an EXPERIMENTAL API.
 class Regresion(object):
-    """GRPC.
-
-    """
+    """Missing associated documentation comment in .proto file."""
 
     @staticmethod
     def StreamLogs(request_iterator,

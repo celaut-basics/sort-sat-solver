@@ -1,20 +1,22 @@
 syntax = "proto3";
+
 import "buffer.proto";
 
 package api;
 
-// Solver
+// The solver contract. The sorter can use each service that implements
+// api.Solver/Solve with these messages. A copy of protos/api.proto, reduced
+// to the messages that a solver needs.
+
+// An interpretation is a list of signed literals that are true.
+// An UNSAT answer is satisfiable = false (or no field set and an empty list).
+// A SAT answer has the literals. It can also set satisfiable = true. This is
+// necessary for a CNF without variables.
 message Interpretation {
     repeated int32 variable = 1;
-    optional bool satisfiable = 2; // Para decir que es insatisfactible se puede pasar únicamente
-        // la lista vacía o bien marcar el booleano en falso. En caso de ser satisfactible se puede
-        // pasar la interpretación y no hace falta pasar el booleano en true. Lo que no tendría sentido
-        // sería pasar una interpretación con una lista de variables y el booleano en falso, en ese caso
-        // el mensaje sería inválido.
+    optional bool satisfiable = 2;
 }
 
-
-// Random
 message Clause {
     repeated int32 literal = 1;
 }

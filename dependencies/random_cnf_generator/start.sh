@@ -1,2 +1,4 @@
-#!/bin/bash
-python3 /random/start.py
+#!/bin/sh
+# The node runs the entry point as PID 1 with "/" as the working directory.
+cd /random || exit 1
+exec python3 start.py

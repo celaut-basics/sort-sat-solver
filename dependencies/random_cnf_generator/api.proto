@@ -4,7 +4,8 @@ import "buffer.proto";
 
 package api;
 
-// Random
+// A copy of protos/api.proto, reduced to the messages of the Random service.
+
 message Clause {
     repeated int32 literal = 1;
 }

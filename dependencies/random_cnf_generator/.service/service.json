@@ -1,7 +1,29 @@
 {
     "tag": "random-cnf-generator",
-    "api": [{"port":8000, "protocol":["http2","grpc"]}],
-    "architecture": "aarch64",
-    "entrypoint": "/random/start.sh",
-    "envs": []
+    "architecture": "linux/arm64",
+    "init": {
+        "entry_path": ["random", "start.sh"]
+    },
+    "api": [
+        {
+            "port": 8000,
+            "transport": "tcp",
+            "protocol": ["http2", "grpc"]
+        }
+    ],
+    "envs": [
+        "MIN_VARIABLES",
+        "MAX_VARIABLES",
+        "MIN_CLAUSES",
+        "MAX_CLAUSES",
+        "CLAUSE_LENGTH"
+    ],
+    "resources": {
+        "at_init": {
+            "mem_limit": 134217728
+        },
+        "at_most": {
+            "mem_limit": 268435456
+        }
+    }
 }
