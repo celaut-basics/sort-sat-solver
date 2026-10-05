@@ -1,0 +1,8 @@
+# The packages of the sorter and of the regression service, and the tools of
+# the tests. pip reads the -r paths from the directory of this file.
+-r ../requirements.txt
+-r ../dependencies/regresion_cnf/requirements.txt
+-r ../solvers/frontier_http/requirements.txt
+httpx==0.28.1
+grpcio-tools==1.56.0
+setuptools<81
