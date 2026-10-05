@@ -75,6 +75,19 @@ class MainTest(unittest.TestCase):
         self.assertTrue(cnf_utils.is_model(cnf, answer))
         self.assertEqual(len(self.fake.running()), 1)
 
+        # The command line client of tools/client.py.
+        problem = self.app / "problem.cnf"
+        problem.write_text("p cnf 3 3\n1 2 0\n-1 2 0\n-2 3 0\n")
+        result = subprocess.run([sys.executable, "-B", str(ROOT / "tools" / "client.py"),
+                                 f"localhost:{config.PORT}", "solve", str(problem)],
+                                capture_output=True, text=True, timeout=120)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout.splitlines()[0], "SAT")
+        result = subprocess.run([sys.executable, "-B", str(ROOT / "tools" / "client.py"),
+                                 f"localhost:{config.PORT}", "get-dataset", str(self.app / "dataset.bin")],
+                                capture_output=True, text=True, timeout=120)
+        self.assertEqual(result.returncode, 0, result.stderr)
+
         self.process.send_signal(signal.SIGTERM)
         output, _ = self.process.communicate(timeout=60)
         self.assertEqual(self.process.returncode, 0, output)
