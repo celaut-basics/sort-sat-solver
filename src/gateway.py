@@ -127,8 +127,8 @@ class Gateway:
             return next(client_grpc(
                 method=self.stub.StartService,
                 input=request,
-                indices_serializer=START_SERVICE_INDICES,
-                indices_parser=START_SERVICE_OUTPUT,
+                indices_serializer=dict(START_SERVICE_INDICES),
+                indices_parser=dict(START_SERVICE_OUTPUT),
                 partitions_message_mode_parser=True,
                 timeout=self.start_timeout,
             ))
@@ -171,8 +171,8 @@ class Gateway:
             next(client_grpc(
                 method=self.stub.StopService,
                 input=celaut_pb2.TokenMessage(token=token),
-                indices_serializer=STOP_SERVICE_INDICES,
-                indices_parser=STOP_SERVICE_OUTPUT,
+                indices_serializer=dict(STOP_SERVICE_INDICES),
+                indices_parser=dict(STOP_SERVICE_OUTPUT),
                 partitions_message_mode_parser=True,
                 timeout=self.stop_timeout,
             ))
