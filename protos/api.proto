@@ -1,28 +1,37 @@
 syntax = "proto3";
 
-import "onnx.proto";
 import "celaut.proto";
-import "solvers_dataset.proto";
 import "buffer.proto";
 
 package api;
 
-// Solver
+// All methods use bee-rpc: each gRPC call is a stream of buffer.Buffer in
+// each direction. The comment of each method gives the messages that the
+// stream carries. "1: A, 2: B" means that the message A has the index 1 and
+// the message B has the index 2.
+
+// The solver contract.
+// A solver is a service that implements api.Solver/Solve with Cnf and
+// Interpretation. The copies of these messages in solvers/frontier/api.proto
+// and dependencies/random_cnf_generator/api.proto must stay identical.
+// tests/test_protos.py checks this.
+
+// A list of signed literals that are true.
+// SAT: the literals of a model. satisfiable can be true.
+//      satisfiable = true is necessary for a CNF without variables.
+// UNSAT: satisfiable = false, or no field set and an empty list.
+// A list of literals with satisfiable = false is not valid.
 message Interpretation {
     repeated int32 variable = 1;
-    optional bool satisfiable = 2; // Para decir que es insatisfactible se puede pasar únicamente
-        // la lista vacía o bien marcar el booleano en falso. En caso de ser satisfactible se puede
-        // pasar la interpretación y no hace falta pasar el booleano en true. Lo que no tendría sentido
-        // sería pasar una interpretación con una lista de variables y el booleano en falso, en ese caso
-        // el mensaje sería inválido.
+    optional bool satisfiable = 2;
 }
 
-
-// Random
+// A clause is a disjunction of literals. A literal is a non-zero integer.
 message Clause {
     repeated int32 literal = 1;
 }
 
+// A CNF is a conjunction of clauses.
 message Cnf {
     repeated Clause clause = 1;
 }
@@ -31,38 +40,50 @@ message File {
     string file = 1;
 }
 
-message Tensor { // Like Onxx but with only SolverWithConfig'field elements.
-    message NonEscalarDimension {    
+// A solver service with the values of its environment variables.
+// Its id is the SHA3-256 of the serialized message.
+message SolverConfiguration {
+    celaut.Metadata meta = 1;
+    repeated celaut.BytesKeyValue environment_variables = 2;
+}
+
+// The model of each solver configuration.
+// Each element is a solver configuration. Each escalar is a serialized ONNX
+// model with the input "X" of shape [N, 2] (clauses, variables) and one
+// output: the predicted score. A higher score is better.
+message Tensor {
+    message NonEscalarDimension {
         message NonEscalar {
-            dataset.SolverConfiguration element = 1;
+            SolverConfiguration element = 1;
             oneof model {
-                tensor_onnx.ModelProto escalar = 2;
+                bytes escalar = 2;
                 NonEscalarDimension non_escalar = 3;
-            } 
+            }
         }
         repeated NonEscalar non_escalar = 1;
     }
-    celaut.Service.Tensor specification = 1;
+    // Field 1 was celaut.Service.Tensor. The current celaut.proto does not
+    // have this message.
+    reserved 1;
     oneof model {
-        tensor_onnx.ModelProto escalar = 2;
+        bytes escalar = 2;
         NonEscalarDimension non_escalar = 3;
     }
 }
 
 service Solver {
-    rpc StartTrain ( stream buffer.Buffer) returns (stream buffer.Buffer) {}  // Empty -> Empty
-    rpc StopTrain ( stream buffer.Buffer) returns (stream buffer.Buffer) {}  // Empty -> Empty
-    rpc GetTensor ( stream buffer.Buffer) returns (stream buffer.Buffer) {}  // Empty -> Tensor
-    rpc UploadSolver ( stream buffer.Buffer) returns (stream buffer.Buffer) {}  // Serivce | Metadata -> Empty
-    rpc StreamLogs ( stream buffer.Buffer) returns (stream buffer.Buffer) {}  // Empty -> File
-    rpc Solve ( stream buffer.Buffer) returns (stream buffer.Buffer) {}  // Cnf -> 1: Interpretation, 2: Empty
-    rpc AddTensor( stream buffer.Buffer) returns (stream buffer.Buffer) {}  // Tensor -> Empty
-
-    // Hasta que se implemente AddTensor.
-    rpc GetDataSet ( stream buffer.Buffer) returns (stream buffer.Buffer) {}  // Empty -> dataset.DataSet
-    rpc AddDataSet ( stream buffer.Buffer) returns (stream buffer.Buffer) {}  // dataset.DataSet -> Empty
+    rpc StartTrain (stream buffer.Buffer) returns (stream buffer.Buffer) {}  // Empty -> Empty
+    rpc StopTrain (stream buffer.Buffer) returns (stream buffer.Buffer) {}  // Empty -> Empty
+    rpc GetTensor (stream buffer.Buffer) returns (stream buffer.Buffer) {}  // Empty -> Tensor
+    rpc UploadSolver (stream buffer.Buffer) returns (stream buffer.Buffer) {}  // 1: celaut.Metadata, 2: celaut.Service -> Empty
+    rpc StreamLogs (stream buffer.Buffer) returns (stream buffer.Buffer) {}  // Empty -> stream of File
+    rpc Solve (stream buffer.Buffer) returns (stream buffer.Buffer) {}  // Cnf -> 1: Interpretation or 2: Empty (no answer)
+    rpc AddTensor (stream buffer.Buffer) returns (stream buffer.Buffer) {}  // Tensor -> Empty. Not implemented.
+    rpc GetDataSet (stream buffer.Buffer) returns (stream buffer.Buffer) {}  // Empty -> dataset.DataSet
+    rpc AddDataSet (stream buffer.Buffer) returns (stream buffer.Buffer) {}  // dataset.DataSet -> Empty
 }
 
+// The API of the random CNF generator (dependencies/random_cnf_generator).
 service Random {
-    rpc RandomCnf(stream buffer.Buffer) returns (stream buffer.Buffer) {} // Empty -> Cnf
+    rpc RandomCnf (stream buffer.Buffer) returns (stream buffer.Buffer) {}  // Empty -> Cnf
 }

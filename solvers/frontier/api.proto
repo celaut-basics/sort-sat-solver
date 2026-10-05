@@ -1,28 +1,33 @@
 syntax = "proto3";
+
 import "buffer.proto";
 
 package api;
 
-// Solver
+// The solver contract of the sorter: api.Solver/Solve over bee-rpc.
+// The messages are copies of the messages in protos/api.proto.
+// tests/test_protos.py checks that they stay identical.
+
+// A list of signed literals that are true.
+// SAT: the literals of a model. satisfiable can be true.
+//      satisfiable = true is necessary for a CNF without variables.
+// UNSAT: satisfiable = false, or no field set and an empty list.
+// A list of literals with satisfiable = false is not valid.
 message Interpretation {
     repeated int32 variable = 1;
-    optional bool satisfiable = 2; // Para decir que es insatisfactible se puede pasar únicamente
-        // la lista vacía o bien marcar el booleano en falso. En caso de ser satisfactible se puede
-        // pasar la interpretación y no hace falta pasar el booleano en true. Lo que no tendría sentido
-        // sería pasar una interpretación con una lista de variables y el booleano en falso, en ese caso
-        // el mensaje sería inválido.
+    optional bool satisfiable = 2;
 }
 
-
-// Random
+// A clause is a disjunction of literals. A literal is a non-zero integer.
 message Clause {
     repeated int32 literal = 1;
 }
 
+// A CNF is a conjunction of clauses.
 message Cnf {
     repeated Clause clause = 1;
 }
 
 service Solver {
-    rpc Solve(stream buffer.Buffer) returns (stream buffer.Buffer) {} // Cnf -> Interpretation
+    rpc Solve (stream buffer.Buffer) returns (stream buffer.Buffer) {}  // Cnf -> Interpretation
 }

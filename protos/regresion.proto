@@ -1,32 +1,36 @@
 syntax = "proto3";
 
-import "onnx.proto";
 import "buffer.proto";
+
+// The API of the regression service (dependencies/regresion_cnf).
+// dependencies/regresion_cnf/regresion.proto must be identical to this file.
+// tests/test_protos.py checks this.
 
 message File {
     string file = 1;
 }
 
-message Tensor { // Like Onxx but with only str'field elements (with the solver with config id).
-    message NonEscalarDimension {    
+// The model of each solver configuration. Each element is the id of a solver
+// configuration: the hex of DataSetInstance.configuration_hash. Each escalar
+// is a serialized ONNX model (see api.Tensor).
+message Tensor {
+    message NonEscalarDimension {
         message NonEscalar {
             string element = 1;
             oneof model {
-                tensor_onnx.ModelProto escalar = 2;
+                bytes escalar = 2;
                 NonEscalarDimension non_escalar = 3;
-            } 
+            }
         }
         repeated NonEscalar non_escalar = 1;
     }
     oneof model {
-        tensor_onnx.ModelProto escalar = 1;
+        bytes escalar = 1;
         NonEscalarDimension non_escalar = 2;
     }
 }
 
-// GRPC.
-
 service Regresion {
-    rpc StreamLogs (stream buffer.Buffer) returns (stream buffer.Buffer){} // Empty -> File
+    rpc StreamLogs (stream buffer.Buffer) returns (stream buffer.Buffer) {}  // Empty -> File
     rpc MakeRegresion (stream buffer.Buffer) returns (stream buffer.Buffer) {}  // dataset.DataSet -> Tensor
 }
