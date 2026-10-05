@@ -29,8 +29,11 @@ def main() -> None:
     # bee-rpc keeps the blocks of the services in BLOCK_DIR. The packer puts the
     # blocks of the dependencies there (pack_config.json blocks_directory).
     # The sorter only forwards the services, so it does not need the wbp.bin files.
+    # bee-rpc creates its directories only one time, so create them here.
     modify_env(cache_dir=str(config.CACHE_DIR) + "/", block_dir=str(config.BLOCK_DIR) + "/",
                skip_wbp_generation=True)
+    (config.CACHE_DIR / "grpcbigbuffer").mkdir(parents=True, exist_ok=True)
+    config.BLOCK_DIR.mkdir(parents=True, exist_ok=True)
 
     gateway = Gateway(gateway_address(configuration_file),
                       start_timeout=envs['START_SERVICE_TIMEOUT'], log=log)
