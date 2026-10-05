@@ -1,2 +1,4 @@
-#!/bin/bash
-python3 /frontier/start.py
+#!/bin/sh
+# The node runs the entry point as PID 1 with "/" as the working directory.
+cd /frontier || exit 1
+exec python3 start.py

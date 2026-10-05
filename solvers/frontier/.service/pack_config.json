@@ -1,10 +1,9 @@
 {
-  "workdir": "frontier",
   "include": [
     "api_pb2.py",
     "api_pb2_grpc.py",
-    "buffer.proto",
     "frontier.py",
+    "requirements.txt",
     "start.py",
     "start.sh"
   ]

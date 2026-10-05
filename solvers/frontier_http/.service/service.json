@@ -1,6 +1,25 @@
 {
-    "api": [{"port":8080, "protocol":["http", "rest"]}],
-    "architecture": "amd64",
-    "entrypoint": "/frontier/start.sh",
-    "envs": []
+    "tag": "frontier-sat-solver-http",
+    "architecture": "linux/amd64",
+    "init": {
+        "entry_path": ["frontier", "start.sh"]
+    },
+    "api": [
+        {
+            "port": 8080,
+            "transport": "tcp",
+            "protocol": ["http", "rest"]
+        }
+    ],
+    "envs": [
+        "FRONTIER_TIMEOUT"
+    ],
+    "resources": {
+        "at_init": {
+            "mem_limit": 134217728
+        },
+        "at_most": {
+            "mem_limit": 536870912
+        }
+    }
 }
