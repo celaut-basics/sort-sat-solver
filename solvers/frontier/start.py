@@ -54,7 +54,7 @@ class Solver(api_pb2_grpc.SolverServicer):
 def serve(port: int = PORT) -> grpc.Server:
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=MAX_WORKERS))
     api_pb2_grpc.add_SolverServicer_to_server(Solver(), server)
-    server.add_insecure_port(f"[::]:{port}")
+    server.add_insecure_port(f"0.0.0.0:{port}")
     server.start()
     return server
 

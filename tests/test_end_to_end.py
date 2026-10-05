@@ -87,7 +87,7 @@ class EndToEndTest(unittest.TestCase):
         servicer = SorterServicer(self.solvers, self.ranker, self.regression, self.trainer, envs)
         port = free_port()
         self.server = serve(servicer, port, max_workers=8)
-        self.stub = api_pb2_grpc.SolverStub(grpc.insecure_channel(f"localhost:{port}"))
+        self.stub = api_pb2_grpc.SolverStub(grpc.insecure_channel(f"127.0.0.1:{port}"))
 
     def tearDown(self):
         self.trainer.stop()
@@ -170,7 +170,7 @@ class EndToEndTest(unittest.TestCase):
         server = serve(SorterServicer(self.solvers, self.ranker, self.regression, self.trainer, servicer_envs),
                        port, max_workers=2)
         try:
-            stub = api_pb2_grpc.SolverStub(grpc.insecure_channel(f"localhost:{port}"))
+            stub = api_pb2_grpc.SolverStub(grpc.insecure_channel(f"127.0.0.1:{port}"))
             answer = next(client_grpc(
                 method=stub.Solve, input=cnf_utils.from_dimacs(["1 0", "-1 0"]),
                 indices_serializer=api_pb2.Cnf,

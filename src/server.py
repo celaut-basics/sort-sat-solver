@@ -146,6 +146,6 @@ class SorterServicer(api_pb2_grpc.SolverServicer):
 def serve(servicer: SorterServicer, port: int, max_workers: int) -> grpc.Server:
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=max_workers))
     api_pb2_grpc.add_SolverServicer_to_server(servicer, server)
-    server.add_insecure_port(f"[::]:{port}")
+    server.add_insecure_port(f"0.0.0.0:{port}")
     server.start()
     return server

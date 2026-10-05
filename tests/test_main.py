@@ -63,7 +63,7 @@ class MainTest(unittest.TestCase):
         self.tmp.cleanup()
 
     def test_solve_and_stop(self):
-        channel = grpc.insecure_channel(f"localhost:{config.PORT}")
+        channel = grpc.insecure_channel(f"127.0.0.1:{config.PORT}")
         grpc.channel_ready_future(channel).result(timeout=60)
         cnf = cnf_utils.from_dimacs(["1 2 0", "-1 2 0", "-2 3 0"])
         answer = next(client_grpc(
@@ -79,12 +79,12 @@ class MainTest(unittest.TestCase):
         problem = self.app / "problem.cnf"
         problem.write_text("p cnf 3 3\n1 2 0\n-1 2 0\n-2 3 0\n")
         result = subprocess.run([sys.executable, "-B", str(ROOT / "tools" / "client.py"),
-                                 f"localhost:{config.PORT}", "solve", str(problem)],
+                                 f"127.0.0.1:{config.PORT}", "solve", str(problem)],
                                 capture_output=True, text=True, timeout=120)
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(result.stdout.splitlines()[0], "SAT")
         result = subprocess.run([sys.executable, "-B", str(ROOT / "tools" / "client.py"),
-                                 f"localhost:{config.PORT}", "get-dataset", str(self.app / "dataset.bin")],
+                                 f"127.0.0.1:{config.PORT}", "get-dataset", str(self.app / "dataset.bin")],
                                 capture_output=True, text=True, timeout=120)
         self.assertEqual(result.returncode, 0, result.stderr)
 

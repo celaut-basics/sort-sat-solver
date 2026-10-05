@@ -65,7 +65,7 @@ class RegresionServicer(regresion_pb2_grpc.RegresionServicer):
 def serve(port: int = PORT) -> grpc.Server:
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=MAX_WORKERS))
     regresion_pb2_grpc.add_RegresionServicer_to_server(RegresionServicer(), server)
-    server.add_insecure_port(f"[::]:{port}")
+    server.add_insecure_port(f"0.0.0.0:{port}")
     server.start()
     return server
 

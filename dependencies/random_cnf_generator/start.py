@@ -28,7 +28,7 @@ class RandomCnf(api_pb2_grpc.RandomServicer):
 def serve(port: int = PORT, shape: Shape = None) -> grpc.Server:
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=MAX_WORKERS))
     api_pb2_grpc.add_RandomServicer_to_server(RandomCnf(shape or Shape.from_environ(os.environ)), server)
-    server.add_insecure_port(f"[::]:{port}")
+    server.add_insecure_port(f"0.0.0.0:{port}")
     server.start()
     return server
 
