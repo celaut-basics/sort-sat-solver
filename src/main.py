@@ -87,8 +87,11 @@ def main() -> None:
     log(f"Listening on port {config.PORT}.")
 
     def stop_server():
+        # Do not wait here: this thread must stop the gRPC server so that
+        # wait_for_termination() returns. The main thread then waits for the
+        # trainer and the regression, then it stops the child instances.
         trainer.stop(wait=False)
-        regression.stop()
+        regression.stop(wait=False)
         server.stop(grace=5)
 
     def on_signal(signum, frame):
@@ -99,8 +102,10 @@ def main() -> None:
     signal.signal(signal.SIGTERM, on_signal)
     signal.signal(signal.SIGINT, on_signal)
     server.wait_for_termination()
-    # Stop the child instances, so that the node does not keep them (and their
-    # cost) after the sorter.
+    # Wait for the trainer and the regression so that they do not start a
+    # child instance after children.close().
+    trainer.stop(wait=True)
+    regression.stop(wait=True)
     children.close()
     log("Stopped.")
 

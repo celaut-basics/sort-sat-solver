@@ -128,6 +128,9 @@ class ChildServiceTest(unittest.TestCase):
         # A second close does nothing.
         children.close()
         self.assertEqual(len(self.gateway.stopped), 2)
+        with self.assertRaises(RuntimeError):
+            self.child.call(lambda channel: None)
+        self.assertEqual(len(self.gateway.started), 2)
 
 
 if __name__ == "__main__":

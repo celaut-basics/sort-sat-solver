@@ -46,6 +46,7 @@ class ChildService:
         self._channel: Optional[grpc.Channel] = None
         self._calls = 0  # Calls in progress.
         self._last_use = clock()
+        self._closed = False
 
     @property
     def running(self) -> bool:
@@ -85,6 +86,8 @@ class ChildService:
 
     def _acquire(self, replace: Optional[ChildInstance] = None) -> Tuple[grpc.Channel, ChildInstance]:
         with self._lock:
+            if self._closed:
+                raise RuntimeError(f"The child service {self.name} is closed.")
             if replace is not None and self._instance == replace:
                 self._stop_instance(self._drop_locked())
             channel = self._channel or self._start_locked()
@@ -131,6 +134,7 @@ class ChildService:
 
     def close(self) -> None:
         with self._lock:
+            self._closed = True
             instance = self._drop_locked()
         if instance is not None:
             self._stop_instance(instance)

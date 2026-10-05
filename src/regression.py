@@ -84,5 +84,8 @@ class Regression:
             self._thread = threading.Thread(target=self._loop, name="Regression", daemon=True)
             self._thread.start()
 
-    def stop(self) -> None:
+    def stop(self, wait: bool = True) -> None:
         self._stop.set()
+        thread = self._thread
+        if wait and thread is not None:
+            thread.join()
