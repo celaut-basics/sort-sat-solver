@@ -39,11 +39,12 @@ class SorterServicer(api_pb2_grpc.SolverServicer):
     # -- Solve ----------------------------------------------------------------
 
     def Solve(self, request_iterator, context):
+        # bee-rpc does not send an empty message: no message is an empty CNF.
         cnf = next(parse_from_buffer(
             request_iterator=request_iterator,
             indices=api_pb2.Cnf,
             partitions_message_mode=True,
-        ))
+        ), api_pb2.Cnf())
         try:
             cnf_utils.validate(cnf)
         except cnf_utils.InvalidCnf as e:
@@ -124,7 +125,7 @@ class SorterServicer(api_pb2_grpc.SolverServicer):
             request_iterator=request_iterator,
             indices=sd_pb2.DataSet,
             partitions_message_mode=True,
-        )))
+        ), sd_pb2.DataSet()))
         yield from serialize_to_buffer()
 
     # -- Logs -----------------------------------------------------------------

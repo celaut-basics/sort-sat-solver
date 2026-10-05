@@ -46,11 +46,12 @@ class RegresionServicer(regresion_pb2_grpc.RegresionServicer):
         yield from serialize_to_buffer(message_iterator=regresion_pb2.File(file=content))
 
     def MakeRegresion(self, request_iterator, context):
+        # bee-rpc does not send an empty message: no message is an empty dataset.
         data_set = next(parse_from_buffer(
             request_iterator=request_iterator,
             indices=DataSet,
             partitions_message_mode=True,
-        ))
+        ), DataSet())
         yield from serialize_to_buffer(
             message_iterator=regresion.iterate_regression(
                 data_set=data_set,

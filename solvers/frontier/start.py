@@ -20,11 +20,12 @@ MAX_WORKERS = 4
 class Solver(api_pb2_grpc.SolverServicer):
 
     def Solve(self, request_iterator, context):
+        # bee-rpc does not send an empty message: no message is an empty CNF.
         cnf = next(parse_from_buffer(
             request_iterator=request_iterator,
             indices=api_pb2.Cnf,
             partitions_message_mode=True
-        ))
+        ), api_pb2.Cnf())
         deadline = time.monotonic() + TIMEOUT if TIMEOUT > 0 else None
 
         def should_stop() -> bool:

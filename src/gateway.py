@@ -78,6 +78,10 @@ def service_hash(service_id: str) -> celaut_pb2.Metadata.HashTag.Hash:
     return celaut_pb2.Metadata.HashTag.Hash(type=SHA3_256_ID, value=bytes.fromhex(service_id))
 
 
+def minimal_metadata(service_id: str) -> celaut_pb2.Metadata:
+    return celaut_pb2.Metadata(hashtag=celaut_pb2.Metadata.HashTag(hash=[service_hash(service_id)]))
+
+
 def read_metadata(path: Optional[Path]) -> Optional[celaut_pb2.Metadata]:
     if path is None or not path.is_file():
         return None
@@ -94,6 +98,8 @@ def start_service_request(service_id: str,
 
     The Configuration goes before the hash: the node starts the service when it
     knows it, and it reads the Configuration that it received before that.
+    bee-rpc does not send an empty message, so an empty Configuration does not
+    arrive. For the node, that is the same as no Configuration.
     """
     yield configuration(environment)
     yield service_hash(service_id)
@@ -149,10 +155,11 @@ class Gateway:
             self.log(f"StartService with the hash of {service_id} failed ({e.code()}: {e.details()}). "
                      f"Send the service.")
             # The node must receive a Metadata with the service: it saves it in
-            # its registry and adds the hash that it received before.
+            # its registry. bee-rpc does not send an empty message, so a
+            # Metadata without a file has the hash.
             instance = self._start(start_service_request(
                 service_id, environment,
-                metadata=read_metadata(metadata_file) or celaut_pb2.Metadata(),
+                metadata=read_metadata(metadata_file) or minimal_metadata(service_id),
                 service_dir=service_dir,
             ))
         if not instance.token:
