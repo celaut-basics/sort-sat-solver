@@ -6,8 +6,8 @@ random one.
 
 This module has no dependencies outside the standard library. The gRPC
 solver (solvers/frontier) and the HTTP solver (solvers/frontier_http) use
-an identical copy of this file. tests/test_frontier.py makes sure that the
-two copies stay the same.
+an identical copy of this file. tests/test_child_services.py makes sure that
+the two copies stay the same.
 
 Local search cannot prove that a formula is unsatisfiable (an empty clause
 is the only exception). For an unsatisfiable formula, solve() continues
