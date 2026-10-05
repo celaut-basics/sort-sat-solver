@@ -5,7 +5,7 @@ is selected with k-fold cross-validation, because the training score always
 increases with the degree. The models are exported to ONNX, so that the sorter
 only needs onnxruntime to use them.
 """
-from typing import Callable, Dict, List, Optional, Tuple
+from typing import Callable, Dict, Tuple
 
 import numpy as np
 from skl2onnx import convert_sklearn
