@@ -1,20 +1,23 @@
 {
-  "workdir": "satsorter",
   "service_dependencies_directory": "__services__",
   "metadata_dependencies_directory": "__metadata__",
   "blocks_directory": "__block__",
-  "zip": true,
+  "zip": false,
   "ignore_loadable_protobuf": true,
   "dependencies": {
-    "REGRESION": "dependencies/regresion_cnf",
-    "RANDOM": "dependencies/random_cnf_generator"
+    "REGRESSION": "dependencies/regresion_cnf",
+    "RANDOM": "dependencies/random_cnf_generator",
+    "SOLVER_FRONTIER": "solvers/frontier"
   },
   "dependencies_env": true,
   "include": [
     "protos",
     "src",
-    "__init__.py",
-    "start.sh",
-    ".service/pack_config.json"
+    "requirements.txt",
+    "start.sh"
+  ],
+  "ignore": [
+    "__pycache__",
+    "*.pyc"
   ]
 }

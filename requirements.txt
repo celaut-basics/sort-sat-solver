@@ -1,0 +1,5 @@
+grpcio==1.56.0
+protobuf==4.25.9
+bee-rpc @ git+https://github.com/bee-rpc-protocol/bee-rpc-over-grpc-py@8049fd86261c0d85445e6c27d363e0c82d5b2958
+numpy==1.26.4
+onnxruntime==1.17.3
