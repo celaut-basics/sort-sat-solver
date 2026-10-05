@@ -48,7 +48,8 @@ node that runs it (celaut-project/nodo, branch `dev`).
   local instance of the node, so it sends no `Client` and no
   `RecursionGuard`.
 - The sorter stops a child instance with `Gateway.StopService` after
-  `CHILD_IDLE_TIMEOUT` seconds without use, and when it receives `SIGTERM`.
+  `CHILD_IDLE_TIMEOUT` seconds without use, and when its process receives
+  `SIGTERM`. `nodo kill` does not send `SIGTERM` (see "Pack and run").
 - The sorter declares no `network`. The node lets an instance reach the
   gateway and the instances that it started (nodo `docs/FIREWALL.md`).
 
@@ -84,12 +85,21 @@ python3 tools/client.py <address> get-dataset dataset.bin
 python3 tools/client.py <address> stop-train
 ```
 
-Stop the sorter. It stops its child instances when it receives `SIGTERM`.
-Check with `nodo instances` that no child instance stays.
+Stop the sorter. `nodo kill` stops the microVM at once (SIGKILL), so the
+sorter cannot stop its child instances, and the node does not stop them
+either. Stop them yourself: `nodo instances --grouped` shows the instances
+of each parent.
 
 ```bash
+python3 tools/client.py <address> stop-train
 sudo nodo kill <sorter instance id>
+nodo instances --grouped
+sudo nodo kill <child instance id>    # for each child instance of the sorter
 ```
+
+While the sorter runs, it stops a child instance after `CHILD_IDLE_TIMEOUT`
+seconds without use. It also stops all of them when its process receives
+`SIGTERM` (for example in a development run).
 
 ### Development run without a pack
 
