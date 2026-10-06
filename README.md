@@ -24,7 +24,8 @@ node that runs it (celaut-project/nodo, branch `dev`).
 
 | Path | Content |
 |------|---------|
-| `.service/`, `start.sh`, `src/`, `requirements.txt` | The sorter service. |
+| `amd64/`, `arm64/` | The pack roots of the sorter, one for each architecture (see "Pack and run"). |
+| `start.sh`, `src/`, `requirements.txt` | The source of the sorter service. |
 | `protos/` | The API of the sorter (`api.proto`), of the regression (`regresion.proto`), the dataset (`solvers_dataset.proto`) and a copy of `celaut.proto` from nodo `dev`. |
 | `dependencies/regresion_cnf/` | The regression service (scikit-learn, models exported to ONNX). |
 | `dependencies/random_cnf_generator/` | The random k-CNF generator. |
@@ -35,7 +36,7 @@ node that runs it (celaut-project/nodo, branch `dev`).
 
 ## How the sorter uses the node
 
-- The packer adds the services of `.service/pack_config.json`
+- The packer adds the services of `<arch>/.service/pack_config.json`
   `dependencies` to the filesystem of the sorter (`__services__`,
   `__metadata__`, `__block__`). It writes their service ids in
   `.dependencies`: `REGRESSION`, `RANDOM`, and one `SOLVER_<NAME>` key for
@@ -57,16 +58,34 @@ node that runs it (celaut-project/nodo, branch `dev`).
 
 Use a node with the `dev` branch. Read nodo `docs/PACKING.md` first.
 
-All the services of this repository use the architecture `linux/amd64`. The
-packer can only build for the architecture of its host. For an arm64 host,
-change `architecture` to `linux/arm64` in the five `service.json` files.
-
-Pack the sorter from the root of the repository. The packer also packs the
-three local dependencies. A pack can take a long time.
+A Celaut service has one architecture. So each service of this repository
+has one pack root for each architecture, as in `celaut-basics/demo-service`.
+Pack the tree of the node's architecture. The packer also packs the three
+local dependencies of the same architecture. A pack can take a long time.
 
 ```bash
-nodo pack .
+nodo pack amd64          # linux/amd64
+nodo pack arm64          # linux/arm64
 ```
+
+```
+amd64/  arm64/                     pack roots of the sorter
+├── .service/                      Dockerfile, service.json, pack_config.json (one set per arch)
+├── protos src requirements.txt start.sh   -> ../<same name>
+└── regresion_cnf random_cnf_generator frontier
+                                   -> ../dependencies/<name>/<arch>, ../solvers/frontier/<arch>
+dependencies/<name>/  solvers/<name>/   shared source of each child
+└── amd64/  arm64/                 pack roots of the child (.service/ + links to ../<file>)
+```
+
+`nodo pack <dir>` reads only `<dir>/.service/` and copies `<dir>` to its
+cache. The copy follows symlinks. So each dependency must be a link inside
+the pack root, and the shared sources reach each root through links. The two
+`.service/` sets are real files. Today only `architecture` and the first
+comment of the Dockerfiles differ. The python base images are multi-arch
+indexes, and every native wheel has a cp311 build for x86_64 and aarch64.
+`tests/test_layout.py` checks the shape. To pack the architecture that is not
+the host's, the packer host needs a binfmt_misc handler for it.
 
 Start the sorter. `-e` sets a variable of the table below.
 
@@ -103,15 +122,18 @@ seconds without use. It also stops all of them when its process receives
 
 ### Development run without a pack
 
-`nodo ggconf` writes `__config__` and `.dependencies` in the repository and
-copies the dependencies from the registry of the node. The dependencies must
-be in the registry: pack them one time first.
+`nodo ggconf <dir>` reads `<dir>/.service/pack_config.json`. It writes
+`__config__` and `.dependencies` in `<dir>` and resolves the dependencies
+from the registry of the node. The dependencies must be in the registry:
+pack them one time first. The sorter reads the two files from the repository
+root, so copy them there.
 
 ```bash
-nodo pack dependencies/regresion_cnf
-nodo pack dependencies/random_cnf_generator
-nodo pack solvers/frontier
-nodo ggconf .
+nodo pack dependencies/regresion_cnf/amd64        # or .../arm64
+nodo pack dependencies/random_cnf_generator/amd64
+nodo pack solvers/frontier/amd64
+nodo ggconf amd64
+cp amd64/__config__ amd64/.dependencies .
 python3 -m src.main
 ```
 
@@ -165,8 +187,10 @@ same CNF.
 A solver is a service that implements `api.Solver/Solve` with the messages of
 `solvers/frontier/api.proto`, over bee-rpc. There are two ways to add one:
 
-- Add it to `dependencies` in `.service/pack_config.json` with a key that
-  starts with `SOLVER_`, then pack the sorter again.
+- Add it to `dependencies` in `amd64/.service/pack_config.json` and
+  `arm64/.service/pack_config.json` with a key that starts with `SOLVER_`.
+  Add a link to its pack root of the same architecture. Then pack the sorter
+  again.
 - Send it to a running sorter with `UploadSolver`. For a service in the
   registry of the local node:
   `python3 tools/client.py <address> upload-solver <service id>`.
