@@ -1,6 +1,0 @@
-{
-    "api": [{"port":8080, "protocol":["http2","grpc"]}],
-    "architecture": "aarch64",
-    "entrypoint": "/frontier/start.sh",
-    "envs": []
-}

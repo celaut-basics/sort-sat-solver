@@ -4,15 +4,20 @@ import "buffer.proto";
 
 package api;
 
-// Random
+// The API of the random CNF generator: api.Random/RandomCnf over bee-rpc.
+// The messages are copies of the messages in protos/api.proto.
+// tests/test_protos.py checks that they stay identical.
+
+// A clause is a disjunction of literals. A literal is a non-zero integer.
 message Clause {
     repeated int32 literal = 1;
 }
 
+// A CNF is a conjunction of clauses.
 message Cnf {
     repeated Clause clause = 1;
 }
 
 service Random {
-    rpc RandomCnf(stream buffer.Buffer) returns (stream buffer.Buffer) {} // Empty -> Cnf
+    rpc RandomCnf (stream buffer.Buffer) returns (stream buffer.Buffer) {}  // Empty -> Cnf
 }

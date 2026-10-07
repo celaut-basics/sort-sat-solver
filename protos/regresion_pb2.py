@@ -11,11 +11,10 @@ from google.protobuf.internal import builder as _builder
 _sym_db = _symbol_database.Default()
 
 
-from protos import onnx_pb2 as onnx__pb2
 from bee_rpc import buffer_pb2 as buffer__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0fregresion.proto\x1a\nonnx.proto\x1a\x0c\x62uffer.proto\"\x14\n\x04\x46ile\x12\x0c\n\x04\x66ile\x18\x01 \x01(\t\"\xcf\x02\n\x06Tensor\x12*\n\x07\x65scalar\x18\x01 \x01(\x0b\x32\x17.tensor_onnx.ModelProtoH\x00\x12\x32\n\x0bnon_escalar\x18\x02 \x01(\x0b\x32\x1b.Tensor.NonEscalarDimensionH\x00\x1a\xdb\x01\n\x13NonEscalarDimension\x12;\n\x0bnon_escalar\x18\x01 \x03(\x0b\x32&.Tensor.NonEscalarDimension.NonEscalar\x1a\x86\x01\n\nNonEscalar\x12\x0f\n\x07\x65lement\x18\x01 \x01(\t\x12*\n\x07\x65scalar\x18\x02 \x01(\x0b\x32\x17.tensor_onnx.ModelProtoH\x00\x12\x32\n\x0bnon_escalar\x18\x03 \x01(\x0b\x32\x1b.Tensor.NonEscalarDimensionH\x00\x42\x07\n\x05modelB\x07\n\x05model2v\n\tRegresion\x12\x32\n\nStreamLogs\x12\x0e.buffer.Buffer\x1a\x0e.buffer.Buffer\"\x00(\x01\x30\x01\x12\x35\n\rMakeRegresion\x12\x0e.buffer.Buffer\x1a\x0e.buffer.Buffer\"\x00(\x01\x30\x01\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0fregresion.proto\x1a\x0c\x62uffer.proto\"\x14\n\x04\x46ile\x12\x0c\n\x04\x66ile\x18\x01 \x01(\t\"\x9c\x02\n\x06Tensor\x12\x11\n\x07\x65scalar\x18\x01 \x01(\x0cH\x00\x12\x32\n\x0bnon_escalar\x18\x02 \x01(\x0b\x32\x1b.Tensor.NonEscalarDimensionH\x00\x1a\xc1\x01\n\x13NonEscalarDimension\x12;\n\x0bnon_escalar\x18\x01 \x03(\x0b\x32&.Tensor.NonEscalarDimension.NonEscalar\x1am\n\nNonEscalar\x12\x0f\n\x07\x65lement\x18\x01 \x01(\t\x12\x11\n\x07\x65scalar\x18\x02 \x01(\x0cH\x00\x12\x32\n\x0bnon_escalar\x18\x03 \x01(\x0b\x32\x1b.Tensor.NonEscalarDimensionH\x00\x42\x07\n\x05modelB\x07\n\x05model2v\n\tRegresion\x12\x32\n\nStreamLogs\x12\x0e.buffer.Buffer\x1a\x0e.buffer.Buffer\"\x00(\x01\x30\x01\x12\x35\n\rMakeRegresion\x12\x0e.buffer.Buffer\x1a\x0e.buffer.Buffer\"\x00(\x01\x30\x01\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -23,14 +22,14 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'regresion_pb2', _globals)
 if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
-  _globals['_FILE']._serialized_start=45
-  _globals['_FILE']._serialized_end=65
-  _globals['_TENSOR']._serialized_start=68
-  _globals['_TENSOR']._serialized_end=403
-  _globals['_TENSOR_NONESCALARDIMENSION']._serialized_start=175
-  _globals['_TENSOR_NONESCALARDIMENSION']._serialized_end=394
-  _globals['_TENSOR_NONESCALARDIMENSION_NONESCALAR']._serialized_start=260
-  _globals['_TENSOR_NONESCALARDIMENSION_NONESCALAR']._serialized_end=394
-  _globals['_REGRESION']._serialized_start=405
-  _globals['_REGRESION']._serialized_end=523
+  _globals['_FILE']._serialized_start=33
+  _globals['_FILE']._serialized_end=53
+  _globals['_TENSOR']._serialized_start=56
+  _globals['_TENSOR']._serialized_end=340
+  _globals['_TENSOR_NONESCALARDIMENSION']._serialized_start=138
+  _globals['_TENSOR_NONESCALARDIMENSION']._serialized_end=331
+  _globals['_TENSOR_NONESCALARDIMENSION_NONESCALAR']._serialized_start=222
+  _globals['_TENSOR_NONESCALARDIMENSION_NONESCALAR']._serialized_end=331
+  _globals['_REGRESION']._serialized_start=342
+  _globals['_REGRESION']._serialized_end=460
 # @@protoc_insertion_point(module_scope)

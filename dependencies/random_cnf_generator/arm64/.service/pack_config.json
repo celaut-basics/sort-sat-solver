@@ -1,0 +1,10 @@
+{
+  "include": [
+    "api_pb2.py",
+    "api_pb2_grpc.py",
+    "random_cnf.py",
+    "requirements.txt",
+    "start.py",
+    "start.sh"
+  ]
+}

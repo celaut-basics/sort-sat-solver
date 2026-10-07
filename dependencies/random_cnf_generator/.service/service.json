@@ -1,7 +1,0 @@
-{
-    "tag": "random-cnf-generator",
-    "api": [{"port":8000, "protocol":["http2","grpc"]}],
-    "architecture": "aarch64",
-    "entrypoint": "/random/start.sh",
-    "envs": []
-}

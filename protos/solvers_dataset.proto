@@ -1,25 +1,23 @@
 syntax = "proto3";
-import "celaut.proto";
 
 package dataset;
 
-message Data {
-    float score = 1;
-    int32 index = 2;
-}
+// The training data. dependencies/regresion_cnf/solvers_dataset.proto must be
+// identical to this file. tests/test_protos.py checks this.
 
-message SolverConfiguration {
-    celaut.Any.Metadata meta = 1;
-    map<string, bytes> enviroment_variables = 2;
+// The mean score of a solver configuration for one CNF shape.
+message Data {
+    float score = 1;  // The mean score. A higher score is better.
+    int32 index = 2;  // The number of samples in the mean.
 }
 
 message DataSetInstance {
-    bytes configuration_hash = 1;
-    bytes service_hash = 2;
-    map<string, Data> data = 3;  // string is a cnf.
+    bytes configuration_hash = 1;  // The id of the solver configuration (api.SolverConfiguration).
+    bytes service_hash = 2;  // The SHA3-256 id of the solver service.
+    map<string, Data> data = 3;  // The key is a CNF shape: "<clauses>:<variables>".
 }
 
 message DataSet {
-    // identifica el Solver con una configuracion determinada.( hash.value.hex() ) de sha3-256
+    // One instance for each solver configuration.
     repeated DataSetInstance data = 1;
 }

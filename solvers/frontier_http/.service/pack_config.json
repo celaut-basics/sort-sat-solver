@@ -1,8 +1,0 @@
-{
-  "workdir": "frontier",
-  "include": [
-    "frontier.py",
-    "start.py",
-    "start.sh"
-  ]
-}

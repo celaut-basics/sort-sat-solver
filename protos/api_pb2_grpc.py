@@ -107,8 +107,7 @@ class SolverServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def GetDataSet(self, request_iterator, context):
-        """Hasta que se implemente AddTensor.
-        """
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -332,7 +331,8 @@ class Solver(object):
 
 
 class RandomStub(object):
-    """Missing associated documentation comment in .proto file."""
+    """The API of the random CNF generator (dependencies/random_cnf_generator).
+    """
 
     def __init__(self, channel):
         """Constructor.
@@ -348,7 +348,8 @@ class RandomStub(object):
 
 
 class RandomServicer(object):
-    """Missing associated documentation comment in .proto file."""
+    """The API of the random CNF generator (dependencies/random_cnf_generator).
+    """
 
     def RandomCnf(self, request_iterator, context):
         """Missing associated documentation comment in .proto file."""
@@ -372,7 +373,8 @@ def add_RandomServicer_to_server(servicer, server):
 
  # This class is part of an EXPERIMENTAL API.
 class Random(object):
-    """Missing associated documentation comment in .proto file."""
+    """The API of the random CNF generator (dependencies/random_cnf_generator).
+    """
 
     @staticmethod
     def RandomCnf(request_iterator,

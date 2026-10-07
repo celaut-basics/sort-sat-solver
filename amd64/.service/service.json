@@ -1,0 +1,36 @@
+{
+    "tag": "sort-sat-solver",
+    "architecture": "linux/amd64",
+    "init": {
+        "entry_path": ["satsorter", "start.sh"]
+    },
+    "api": [
+        {
+            "port": 8081,
+            "transport": "tcp",
+            "protocol": ["http2", "grpc"]
+        }
+    ],
+    "envs": [
+        "SAVE_TRAIN_DATA",
+        "TRAIN_SOLVERS_TIMEOUT",
+        "SOLVE_TIMEOUT",
+        "MAX_ERRORS_FOR_SOLVER",
+        "MAX_REGRESSION_DEGREE",
+        "TIME_FOR_EACH_REGRESSION_LOOP",
+        "MAX_WORKERS",
+        "CHILD_IDLE_TIMEOUT",
+        "START_SERVICE_TIMEOUT",
+        "CHILD_READY_TIMEOUT"
+    ],
+    "resources": {
+        "at_init": {
+            "mem_limit": 268435456,
+            "disk_space": 3221225472
+        },
+        "at_most": {
+            "mem_limit": 1073741824,
+            "disk_space": 8589934592
+        }
+    }
+}

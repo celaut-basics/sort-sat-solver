@@ -1,0 +1,26 @@
+{
+    "tag": "regresion-cnf",
+    "architecture": "linux/amd64",
+    "init": {
+        "entry_path": ["regresioncnf", "start.sh"]
+    },
+    "api": [
+        {
+            "port": 9999,
+            "transport": "tcp",
+            "protocol": ["http2", "grpc"]
+        }
+    ],
+    "envs": [
+        "MAX_REGRESSION_DEGREE",
+        "MIN_SAMPLES"
+    ],
+    "resources": {
+        "at_init": {
+            "mem_limit": 402653184
+        },
+        "at_most": {
+            "mem_limit": 1073741824
+        }
+    }
+}

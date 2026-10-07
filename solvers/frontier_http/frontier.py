@@ -1,127 +1,196 @@
-#!/usr/bin/python3
+"""Frontier: a WalkSAT-like local search SAT solver.
+
+The solver keeps a "frontier": the best interpretations that it found in
+earlier tries. A new try starts from a frontier interpretation or from a
+random one.
+
+This module has no dependencies outside the standard library. The gRPC
+solver (solvers/frontier) and the HTTP solver (solvers/frontier_http) use
+an identical copy of this file. tests/test_child_services.py makes sure that
+the two copies stay the same.
+
+Local search cannot prove that a formula is unsatisfiable (an empty clause
+is the only exception). For an unsatisfiable formula, solve() continues
+until should_stop() returns True.
+"""
 
 import random
 import sys
+from typing import Callable, List, Optional, Sequence, Tuple
+
+# Probability to walk to a random literal of the clause when no flip is free.
+DEFAULT_OMEGA = 0.4
+# Flips in one try, per variable.
+DEFAULT_MAX_FLIPS_PROPORTION = 4
 
 
-def parse(clauses_input):
-    """Parsea la lista de cláusulas y genera las estructuras internas."""
+class InvalidCnf(ValueError):
+    pass
+
+
+class Unsatisfiable(Exception):
+    """The CNF has an empty clause, so it has no model."""
+
+
+class _IndexedSet:
+    """A set with O(1) add, remove and random choice."""
+
+    def __init__(self):
+        self._items: List[int] = []
+        self._position = {}
+
+    def add(self, item: int):
+        if item not in self._position:
+            self._position[item] = len(self._items)
+            self._items.append(item)
+
+    def remove(self, item: int):
+        position = self._position.pop(item, None)
+        if position is None:
+            return
+        last = self._items.pop()
+        if position < len(self._items):
+            self._items[position] = last
+            self._position[last] = position
+
+    def choice(self, rng: random.Random) -> int:
+        return self._items[rng.randrange(len(self._items))]
+
+    def __len__(self):
+        return len(self._items)
+
+
+def parse(clauses_input: Sequence[Sequence[int]]) -> Tuple[List[List[int]], int, List[List[int]]]:
+    """Return the clauses, the number of variables and the clause index of each literal.
+
+    lit_clauses[literal + n_vars] is the list of clauses that contain the literal.
+    """
     clauses = []
     n_vars = 0
-    
     for clause_literals in clauses_input:
-        c_list = []
-        for literal in clause_literals:
-            c_list.append(literal)
-            if n_vars < abs(literal):
-                n_vars = abs(literal)
-        clauses.append(c_list)
-    
-    count = 0
-    lit_clauses = [[] for _ in range(n_vars * 2 + 1)]
-    for clause in clauses:
+        clause = [int(literal) for literal in clause_literals]
         for literal in clause:
-            lit_clauses[literal + n_vars].append(count)
-        count += 1
-    
+            if literal == 0:
+                raise InvalidCnf("A literal cannot be 0.")
+            n_vars = max(n_vars, abs(literal))
+        clauses.append(clause)
+
+    lit_clauses: List[List[int]] = [[] for _ in range(n_vars * 2 + 1)]
+    for index, clause in enumerate(clauses):
+        for literal in clause:
+            lit_clauses[literal + n_vars].append(index)
     return clauses, n_vars, lit_clauses
 
 
-def get_random_interpretation(n_vars, n_clauses, frontera):
-    valor_0_1 = frontera[1] / n_clauses
-    omega = valor_0_1 ** (1 / 1)
-    if random.random() > omega and len(frontera[0]) != 0:
-        return random.choice(frontera[0])
-    else:
-        return [i if random.random() < 0.5 else -i for i in range(n_vars + 1)]
+def _random_interpretation(n_vars: int, rng: random.Random) -> List[int]:
+    # Position 0 is not a variable. It is there to index the list by variable.
+    return [i if rng.random() < 0.5 else -i for i in range(n_vars + 1)]
 
 
-def get_true_sat_lit(clauses, interpretation):
-    true_sat_lit = [0 for _ in clauses]
+def _start_interpretation(n_vars, n_clauses, frontier, threshold, rng) -> List[int]:
+    # When the threshold is low (good interpretations are known), start from
+    # the frontier more frequently.
+    if frontier and rng.random() > threshold / n_clauses:
+        return list(rng.choice(frontier)[0])
+    return _random_interpretation(n_vars, rng)
+
+
+def _true_literals(clauses, interpretation) -> List[int]:
+    counts = [0] * len(clauses)
     for index, clause in enumerate(clauses):
-        for lit in clause:
-            if interpretation[abs(lit)] == lit:
-                true_sat_lit[index] += 1
-    return true_sat_lit
+        for literal in clause:
+            if interpretation[abs(literal)] == literal:
+                counts[index] += 1
+    return counts
 
 
-def update_tsl(literal_to_flip, true_sat_lit, lit_clause):
-    for clause_index in lit_clause[literal_to_flip]:
-        true_sat_lit[clause_index] += 1
-    for clause_index in lit_clause[-literal_to_flip]:
-        true_sat_lit[clause_index] -= 1
-
-
-def compute_broken(clause, true_sat_lit, lit_clause, omega=0.4):
-    min_daño = sys.maxsize
-    up_frontera = False
-    best_literals = []
-    
+def _pick_literal(clause, true_count, lit_clauses, n_vars, omega, rng) -> Tuple[int, bool]:
+    """Return the literal to flip and True if it is a random walk step."""
+    min_damage = sys.maxsize
+    best_literals: List[int] = []
     for literal in clause:
-        daño = 0
-
-        for clause_index in lit_clause[-literal]:
-            if true_sat_lit[clause_index] == 1:
-                daño += 1
-
-        for clause_index in lit_clause[literal]:
-            if true_sat_lit[clause_index] == 0:
-                daño -= 1
-
-        if daño < min_daño:
-            min_daño = daño
+        damage = 0
+        # Clauses that only the current (opposite) literal satisfies become false.
+        for clause_index in lit_clauses[-literal + n_vars]:
+            if true_count[clause_index] == 1:
+                damage += 1
+        # False clauses that the literal makes true.
+        for clause_index in lit_clauses[literal + n_vars]:
+            if true_count[clause_index] == 0:
+                damage -= 1
+        if damage < min_damage:
+            min_damage = damage
             best_literals = [literal]
-        elif daño == min_daño:
+        elif damage == min_damage:
             best_literals.append(literal)
 
-    if min_daño > 0 and random.random() < omega:
-        best_literals = clause
-        up_frontera = True
-
-    return random.choice(best_literals), up_frontera
-
-
-def prune(frontera):
-    new = []
-    for interpretacion in frontera[0]:
-        if interpretacion[1] < frontera[1]:
-            new.append(interpretacion)
-    return (new, frontera[1])
+    if min_damage > 0 and rng.random() < omega:
+        # No free flip: with probability omega, walk to any literal of the clause.
+        return rng.choice(clause), True
+    return rng.choice(best_literals), False
 
 
-def run_sat(clauses, n_vars, lit_clause, max_flips_proportion=4):
-    max_flips = n_vars * max_flips_proportion
-    frontera = ([], len(clauses))
-    
-    while 1:
-        interpretation = get_random_interpretation(n_vars, len(clauses), frontera)
-        true_sat_lit = get_true_sat_lit(clauses, interpretation)
-        
+def solve(clauses_input: Sequence[Sequence[int]],
+          should_stop: Callable[[], bool] = lambda: False,
+          seed: Optional[int] = None,
+          omega: float = DEFAULT_OMEGA,
+          max_flips_proportion: int = DEFAULT_MAX_FLIPS_PROPORTION) -> Optional[List[int]]:
+    """Search a model of the CNF.
+
+    Return the model as a list of signed literals (one for each variable,
+    variable 1 first), or None when should_stop() returns True first.
+    Raise Unsatisfiable when the CNF has an empty clause, and InvalidCnf
+    when a literal is 0.
+    """
+    rng = random.Random(seed)
+    clauses, n_vars, lit_clauses = parse(clauses_input)
+    if not clauses:
+        return _random_interpretation(n_vars, rng)[1:]
+    if any(len(clause) == 0 for clause in clauses):
+        # An empty clause is always false. This is the only proof of
+        # unsatisfiability that local search can give.
+        raise Unsatisfiable()
+
+    n_clauses = len(clauses)
+    max_flips = max(1, n_vars * max_flips_proportion)
+    # Each frontier item is (interpretation, number of false clauses).
+    frontier: List[Tuple[List[int], int]] = []
+    threshold = n_clauses
+
+    while not should_stop():
+        interpretation = _start_interpretation(n_vars, n_clauses, frontier, threshold, rng)
+        true_count = _true_literals(clauses, interpretation)
+        unsatisfied = _IndexedSet()
+        for index, count in enumerate(true_count):
+            if count == 0:
+                unsatisfied.add(index)
+
         for _ in range(max_flips):
-            unsatisfied_clauses_index = [index for index, true_lit in enumerate(true_sat_lit) 
-                                         if not true_lit]
-
-            if not unsatisfied_clauses_index:
+            if not unsatisfied:
                 return interpretation[1:]
 
-            clause_index = random.choice(unsatisfied_clauses_index)
-            unsatisfied_clause = clauses[clause_index]
+            clause = clauses[unsatisfied.choice(rng)]
+            literal, random_walk = _pick_literal(
+                clause, true_count, lit_clauses, n_vars, omega, rng
+            )
+            if random_walk:
+                threshold = len(unsatisfied)
+                frontier = [item for item in frontier if item[1] < threshold]
 
-            lit_to_flip, up_frontera = compute_broken(unsatisfied_clause, true_sat_lit, lit_clause)
-            
-            if up_frontera:
-                frontera = (frontera[0], len(unsatisfied_clauses_index))
-                frontera = prune(frontera)
+            # The literal becomes true and its opposite becomes false.
+            for clause_index in lit_clauses[literal + n_vars]:
+                true_count[clause_index] += 1
+                if true_count[clause_index] == 1:
+                    unsatisfied.remove(clause_index)
+            for clause_index in lit_clauses[-literal + n_vars]:
+                true_count[clause_index] -= 1
+                if true_count[clause_index] == 0:
+                    unsatisfied.add(clause_index)
+            interpretation[abs(literal)] = literal
 
-            update_tsl(lit_to_flip, true_sat_lit, lit_clause)
-            interpretation[abs(lit_to_flip)] *= -1
+        if not unsatisfied:
+            return interpretation[1:]
+        if len(unsatisfied) < threshold:
+            frontier.append((list(interpretation), len(unsatisfied)))
 
-        if unsatisfied_clauses_index and len(unsatisfied_clauses_index) < frontera[1]:
-            frontera[0].append(interpretation)
-
-
-def ok(clauses_input):
-    """Función principal: recibe lista de cláusulas, devuelve lista de variables."""
-    clauses, n_vars, lit_clause = parse(clauses_input)
-    solution = run_sat(clauses, n_vars, lit_clause)
-    return solution
+    return None
