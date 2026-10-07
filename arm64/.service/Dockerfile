@@ -14,5 +14,12 @@ COPY --from=builder /install /usr/local
 # The service directory also has the dependencies that the packer adds:
 # __services__, __metadata__, __block__ and .dependencies.
 COPY service /satsorter
+# The import check stubs onnxruntime. In a cross-arch build (qemu-user through
+# binfmt), onnxruntime's cpuinfo cannot parse /sys/devices/system/cpu/present and
+# aborts the import (exit 134). The other modules are imported for real, and the
+# onnxruntime package must be installed. A native arm64 host or the arm64 guest
+# has a real sysfs, so onnxruntime loads there.
 RUN chmod +x /satsorter/start.sh \
-    && cd /satsorter && python3 -B -c "import src.main"
+    && cd /satsorter \
+    && python3 -B -c "import importlib.util, sys; sys.exit(importlib.util.find_spec('onnxruntime') is None)" \
+    && python3 -B -c "import sys, types; sys.modules['onnxruntime'] = types.ModuleType('onnxruntime'); import src.main"
