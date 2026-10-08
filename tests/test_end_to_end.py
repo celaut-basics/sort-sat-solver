@@ -158,9 +158,6 @@ class EndToEndTest(unittest.TestCase):
             self.solve(api_pb2.Cnf(clause=[api_pb2.Clause(literal=[1, 0])]))
         self.assertEqual(e.exception.code(), grpc.StatusCode.INVALID_ARGUMENT)
 
-        with self.assertRaises(grpc.RpcError) as e:
-            self.call_empty(self.stub.AddTensor)
-        self.assertEqual(e.exception.code(), grpc.StatusCode.UNIMPLEMENTED)
 
     def test_no_answer(self):
         # frontier cannot prove UNSAT without an empty clause: no answer in the time limit.

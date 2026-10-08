@@ -24,6 +24,16 @@ def message_descriptor(module, name) -> bytes:
 
 class ProtosTest(unittest.TestCase):
 
+    def test_solver_methods(self):
+        # AddTensor was removed in v4 (it was never implemented). A change of this list
+        # is an API change: write it in the release notes.
+        methods = [m.name for m in api_pb2.DESCRIPTOR.services_by_name["Solver"].methods]
+        self.assertEqual(
+            ["StartTrain", "StopTrain", "GetTensor", "UploadSolver", "StreamLogs", "Solve",
+             "GetDataSet", "AddDataSet"],
+            methods,
+        )
+
     def test_regression_protos_are_identical(self):
         for name in ("regresion.proto", "solvers_dataset.proto"):
             self.assertTrue(filecmp.cmp(ROOT / "protos" / name, ROOT / "dependencies" / "regresion_cnf" / name,
