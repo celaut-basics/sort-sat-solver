@@ -6,7 +6,9 @@ from bee_rpc import buffer_pb2 as buffer__pb2
 
 
 class SolverStub(object):
-    """Missing associated documentation comment in .proto file."""
+    """AddTensor (Tensor -> Empty) was removed in release v4. It was never implemented.
+    To move training knowledge between sorters, use GetDataSet and AddDataSet.
+    """
 
     def __init__(self, channel):
         """Constructor.
@@ -44,11 +46,6 @@ class SolverStub(object):
                 request_serializer=buffer__pb2.Buffer.SerializeToString,
                 response_deserializer=buffer__pb2.Buffer.FromString,
                 )
-        self.AddTensor = channel.stream_stream(
-                '/api.Solver/AddTensor',
-                request_serializer=buffer__pb2.Buffer.SerializeToString,
-                response_deserializer=buffer__pb2.Buffer.FromString,
-                )
         self.GetDataSet = channel.stream_stream(
                 '/api.Solver/GetDataSet',
                 request_serializer=buffer__pb2.Buffer.SerializeToString,
@@ -62,7 +59,9 @@ class SolverStub(object):
 
 
 class SolverServicer(object):
-    """Missing associated documentation comment in .proto file."""
+    """AddTensor (Tensor -> Empty) was removed in release v4. It was never implemented.
+    To move training knowledge between sorters, use GetDataSet and AddDataSet.
+    """
 
     def StartTrain(self, request_iterator, context):
         """Missing associated documentation comment in .proto file."""
@@ -95,12 +94,6 @@ class SolverServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def Solve(self, request_iterator, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def AddTensor(self, request_iterator, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -151,11 +144,6 @@ def add_SolverServicer_to_server(servicer, server):
                     request_deserializer=buffer__pb2.Buffer.FromString,
                     response_serializer=buffer__pb2.Buffer.SerializeToString,
             ),
-            'AddTensor': grpc.stream_stream_rpc_method_handler(
-                    servicer.AddTensor,
-                    request_deserializer=buffer__pb2.Buffer.FromString,
-                    response_serializer=buffer__pb2.Buffer.SerializeToString,
-            ),
             'GetDataSet': grpc.stream_stream_rpc_method_handler(
                     servicer.GetDataSet,
                     request_deserializer=buffer__pb2.Buffer.FromString,
@@ -174,7 +162,9 @@ def add_SolverServicer_to_server(servicer, server):
 
  # This class is part of an EXPERIMENTAL API.
 class Solver(object):
-    """Missing associated documentation comment in .proto file."""
+    """AddTensor (Tensor -> Empty) was removed in release v4. It was never implemented.
+    To move training knowledge between sorters, use GetDataSet and AddDataSet.
+    """
 
     @staticmethod
     def StartTrain(request_iterator,
@@ -273,23 +263,6 @@ class Solver(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.stream_stream(request_iterator, target, '/api.Solver/Solve',
-            buffer__pb2.Buffer.SerializeToString,
-            buffer__pb2.Buffer.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
-
-    @staticmethod
-    def AddTensor(request_iterator,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.stream_stream(request_iterator, target, '/api.Solver/AddTensor',
             buffer__pb2.Buffer.SerializeToString,
             buffer__pb2.Buffer.FromString,
             options, channel_credentials,

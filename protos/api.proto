@@ -71,6 +71,8 @@ message Tensor {
     }
 }
 
+// AddTensor (Tensor -> Empty) was removed in release v4. It was never implemented.
+// To move training knowledge between sorters, use GetDataSet and AddDataSet.
 service Solver {
     rpc StartTrain (stream buffer.Buffer) returns (stream buffer.Buffer) {}  // Empty -> Empty
     rpc StopTrain (stream buffer.Buffer) returns (stream buffer.Buffer) {}  // Empty -> Empty
@@ -78,7 +80,6 @@ service Solver {
     rpc UploadSolver (stream buffer.Buffer) returns (stream buffer.Buffer) {}  // 1: celaut.Metadata, 2: celaut.Service -> Empty
     rpc StreamLogs (stream buffer.Buffer) returns (stream buffer.Buffer) {}  // Empty -> stream of File
     rpc Solve (stream buffer.Buffer) returns (stream buffer.Buffer) {}  // Cnf -> 1: Interpretation or 2: Empty (no answer)
-    rpc AddTensor (stream buffer.Buffer) returns (stream buffer.Buffer) {}  // Tensor -> Empty. Not implemented.
     rpc GetDataSet (stream buffer.Buffer) returns (stream buffer.Buffer) {}  // Empty -> dataset.DataSet
     rpc AddDataSet (stream buffer.Buffer) returns (stream buffer.Buffer) {}  // dataset.DataSet -> Empty
 }
