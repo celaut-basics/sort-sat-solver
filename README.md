@@ -170,7 +170,11 @@ and `MIN_SAMPLES`. The frontier solvers have `FRONTIER_TIMEOUT`.
 | `GetDataSet` | nothing | `dataset.DataSet` |
 | `AddDataSet` | `dataset.DataSet` | nothing |
 | `StreamLogs` | nothing | `File` messages with the log, until the client cancels |
-| `AddTensor` | `Tensor` | Not implemented (`UNIMPLEMENTED`). |
+
+`AddTensor` was removed in release `v4` (maintainer decision, 2026-10-08). It was
+never implemented: it answered `UNIMPLEMENTED`. To move training knowledge from one
+sorter to another, use `GetDataSet` and `AddDataSet`. The sorter then trains its own
+model from the data.
 
 bee-rpc does not send a message without fields. Thus an empty answer is a
 stream without a message.

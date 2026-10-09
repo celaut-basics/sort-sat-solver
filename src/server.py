@@ -114,9 +114,6 @@ class SorterServicer(api_pb2_grpc.SolverServicer):
             tensor.non_escalar.non_escalar.add(element=solver.configuration, escalar=model)
         yield from serialize_to_buffer(message_iterator=tensor)
 
-    def AddTensor(self, request_iterator, context):
-        context.abort(grpc.StatusCode.UNIMPLEMENTED, "AddTensor is not implemented. Use AddDataSet.")
-
     def GetDataSet(self, request_iterator, context):
         yield from serialize_to_buffer(message_iterator=self.regression.get_data_set())
 
