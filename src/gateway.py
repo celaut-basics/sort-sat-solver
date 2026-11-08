@@ -32,6 +32,7 @@ START_SERVICE_INDICES = {
     4: celaut_pb2.Metadata.HashTag.Hash,
     5: celaut_pb2.Metadata,
     6: celaut_pb2.Service,
+    7: celaut_pb2.StartReference,
 }
 START_SERVICE_OUTPUT = {1: celaut_pb2.ServiceInstance}
 STOP_SERVICE_INDICES = {1: celaut_pb2.TokenMessage}

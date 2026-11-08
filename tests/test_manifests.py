@@ -16,6 +16,9 @@ import unittest
 from src import config
 from tests.helpers import ROOT
 
+# bee-rpc v0.0.3, the version that nodo dev pins.
+BEE_RPC_PIN = "bee-rpc @ git+https://github.com/bee-rpc-protocol/bee-rpc-over-grpc-py@b250bcaca191209560be7b41b872d996e8c010d2"
+
 SERVICES = ["", "dependencies/regresion_cnf", "dependencies/random_cnf_generator",
             "solvers/frontier", "solvers/frontier_http"]
 # One pack root per architecture: <service>/<arch>/.service (see test_layout.py).
@@ -111,6 +114,16 @@ class ManifestsTest(unittest.TestCase):
     def test_sorter_envs(self):
         for arch in ARCHES:
             self.assertEqual(load("", "service.json", arch)["envs"], list(config.DEFAULT_ENVS))
+
+    def test_bee_rpc_pins_match_the_node(self):
+        # The sorter and its services pin the bee-rpc of nodo dev (bash/requirements.txt,
+        # v0.0.3). bee-rpc v0.0.2 changed how nested blocks go on the wire, and the
+        # sorter sends services with nested blocks to the gateway.
+        files = ["requirements.txt", "dependencies/regresion_cnf/requirements.txt",
+                 "dependencies/random_cnf_generator/requirements.txt", "solvers/frontier/requirements.txt"]
+        for name in files:
+            pins = [line for line in (ROOT / name).read_text().splitlines() if line.startswith("bee-rpc")]
+            self.assertEqual(pins, [BEE_RPC_PIN], name)
 
     def test_sorter_dependencies(self):
         for arch in ARCHES:

@@ -2,7 +2,7 @@
 
 Usage (from any directory):
 
-    pip install grpcio-tools==1.56.0 "bee-rpc @ git+https://github.com/bee-rpc-protocol/bee-rpc-over-grpc-py@8049fd86261c0d85445e6c27d363e0c82d5b2958"
+    pip install grpcio-tools==1.56.0 "bee-rpc @ git+https://github.com/bee-rpc-protocol/bee-rpc-over-grpc-py@b250bcaca191209560be7b41b872d996e8c010d2"
     python3 protos/generate.py
 
 grpcio-tools 1.56.0 contains protoc 23.1. Its code runs with protobuf 4.23 or

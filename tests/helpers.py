@@ -20,7 +20,7 @@ from protos import celaut_pb2, celaut_pb2_grpc
 
 ROOT = Path(__file__).resolve().parent.parent
 
-# A copy of nodo protos/gateway_bee.py (dev, 698e6583), on purpose not imported
+# A copy of nodo protos/gateway_bee.py (dev, a97148dd), on purpose not imported
 # from src.gateway: the fake gateway must not trust the code under test.
 NODO_START_SERVICE_INDICES = {
     1: celaut_pb2.Client,
@@ -29,8 +29,9 @@ NODO_START_SERVICE_INDICES = {
     4: celaut_pb2.Metadata.HashTag.Hash,
     5: celaut_pb2.Metadata,
     6: celaut_pb2.Service,
+    7: celaut_pb2.StartReference,
 }
-NODO_START_SERVICE_MESSAGE_MODE = {1: True, 2: True, 3: True, 4: True, 5: True, 6: False}
+NODO_START_SERVICE_MESSAGE_MODE = {1: True, 2: True, 3: True, 4: True, 5: True, 6: False, 7: True}
 SHA3_256_ID = bytes.fromhex("a7ffc6f8bf1ed76651c14756a061d662f580ff4de43b49fa82d80a4b80f8434a")
 
 
