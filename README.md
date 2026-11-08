@@ -92,7 +92,16 @@ Start the sorter. `-e` sets a variable of the table below.
 ```bash
 nodo execute -e SAVE_TRAIN_DATA 10 <sorter service id>
 nodo instances
+nodo increase_deposit <sorter instance id> 2000000000
 ```
+
+The sorter pays the start of each child from its own balance. Since nodo #563 the
+node gives a new instance only its own build and one hour of its own resources
+(`deposits.INITIAL_RUNTIME_HOURS`), and the start of one child costs more than that.
+Add to the balance of the sorter instance before the first call. On a node at dev
+`a97148dd`, the start of one child costs about 26 000 000 MU. Without the deposit,
+`solve` answers UNKNOWN and the sorter logs "the balance of the sorter does not pay
+for the start of the child".
 
 `nodo instances` shows the address of the sorter instance. Use it with the
 client (install the packages first: `pip install -r requirements.txt`):

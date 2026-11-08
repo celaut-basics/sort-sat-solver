@@ -1,3 +1,3 @@
 grpcio==1.56.0
 protobuf==4.25.9
-bee-rpc @ git+https://github.com/bee-rpc-protocol/bee-rpc-over-grpc-py@8049fd86261c0d85445e6c27d363e0c82d5b2958
+bee-rpc @ git+https://github.com/bee-rpc-protocol/bee-rpc-over-grpc-py@b250bcaca191209560be7b41b872d996e8c010d2
