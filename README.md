@@ -99,9 +99,11 @@ The sorter pays the start of each child from its own balance. Since nodo #563 th
 node gives a new instance only its own build and one hour of its own resources
 (`deposits.INITIAL_RUNTIME_HOURS`), and the start of one child costs more than that.
 Add to the balance of the sorter instance before the first call. On a node at dev
-`a97148dd`, the start of one child costs about 26 000 000 MU. Without the deposit,
-`solve` answers UNKNOWN and the sorter logs "the balance of the sorter does not pay
-for the start of the child".
+`a97148dd` that has not built the child yet, the start of one child costs about
+26 000 000 MU (the build of the child is in it), and the sorter holds about
+15 000 000 MU. Without the deposit, `solve` answers UNKNOWN and the sorter logs "the
+balance of the sorter does not pay for the start of the child". Release `v5` was
+tested this way on nodo dev `a97148dd`.
 
 `nodo instances` shows the address of the sorter instance. Use it with the
 client (install the packages first: `pip install -r requirements.txt`):
