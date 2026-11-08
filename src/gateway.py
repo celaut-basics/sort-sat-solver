@@ -42,6 +42,11 @@ STOP_SERVICE_OUTPUT = {1: celaut_pb2.Refund}
 # call is too slow. Then it does not help to send the service.
 _DO_NOT_SEND_SERVICE = (grpc.StatusCode.UNAVAILABLE, grpc.StatusCode.DEADLINE_EXCEEDED)
 
+# The sorter pays the start of each child from its own balance (nodo #563). When the
+# balance is too small, the node refuses the start with this text, and the status
+# UNKNOWN. Then it does not help to send the service.
+_CANNOT_PAY = "error charging"
+
 
 class GatewayError(Exception):
     pass
@@ -151,6 +156,8 @@ class Gateway:
         try:
             instance = self._start(start_service_request(service_id, environment))
         except grpc.RpcError as e:
+            if _CANNOT_PAY in (e.details() or ""):
+                raise cannot_pay(service_id, e) from e
             if service_dir is None or not service_dir.exists() or e.code() in _DO_NOT_SEND_SERVICE:
                 raise
             self.log(f"StartService with the hash of {service_id} failed ({e.code()}: {e.details()}). "
@@ -158,11 +165,16 @@ class Gateway:
             # The node must receive a Metadata with the service: it saves it in
             # its registry. bee-rpc does not send an empty message, so a
             # Metadata without a file has the hash.
-            instance = self._start(start_service_request(
-                service_id, environment,
-                metadata=read_metadata(metadata_file) or minimal_metadata(service_id),
-                service_dir=service_dir,
-            ))
+            try:
+                instance = self._start(start_service_request(
+                    service_id, environment,
+                    metadata=read_metadata(metadata_file) or minimal_metadata(service_id),
+                    service_dir=service_dir,
+                ))
+            except grpc.RpcError as e2:
+                if _CANNOT_PAY in (e2.details() or ""):
+                    raise cannot_pay(service_id, e2) from e2
+                raise
         if not instance.token:
             raise GatewayError(f"StartService of {service_id} gave no instance token.")
         return ChildInstance(token=instance.token, address=address_of(instance.instance, port))
@@ -179,6 +191,13 @@ class Gateway:
             ))
         except StopIteration:
             pass
+
+
+def cannot_pay(service_id: str, error: grpc.RpcError) -> GatewayError:
+    return GatewayError(
+        f"The node did not start {service_id}: the balance of the sorter does not pay for the "
+        f"start of the child. Add to the balance of the sorter instance, for example with "
+        f"`nodo increase_deposit <sorter instance id> <amount>`. ({error.details()})")
 
 
 def gateway_address(config: celaut_pb2.ConfigurationFile) -> str:

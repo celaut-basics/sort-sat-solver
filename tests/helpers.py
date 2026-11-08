@@ -57,9 +57,13 @@ class FakeGateway(celaut_pb2_grpc.GatewayServicer):
     service (index 6).
     """
 
-    def __init__(self, addresses: Dict[str, str], registry: Optional[set] = None):
+    def __init__(self, addresses: Dict[str, str], registry: Optional[set] = None,
+                 cannot_pay: Optional[set] = None):
         self.addresses = addresses
         self.registry = set(addresses) if registry is None else set(registry)
+        # The ids that the caller's balance does not pay for: the node refuses them
+        # with the text of nodo src/gateway/launcher/launch_service.py.
+        self.cannot_pay = set(cannot_pay or ())
         self.requests: List[list] = []
         self.started: Dict[str, str] = {}  # token -> service id
         self.stopped: List[str] = []
@@ -86,6 +90,9 @@ class FakeGateway(celaut_pb2_grpc.GatewayServicer):
             if not any(isinstance(m, celaut_pb2.Metadata) for m in messages):
                 raise Exception("No metadata for the service.")
             self.registry.add(service_id)
+        if service_id in self.cannot_pay:
+            raise Exception(f"Unable to launch service {service_id}. Attempt details: local: "
+                            "Exception: Launch service error charging " + "cd" * 32)
         if service_id not in self.addresses:
             raise Exception(f"No server for {service_id}.")
         with self._lock:

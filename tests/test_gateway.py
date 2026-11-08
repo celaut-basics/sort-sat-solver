@@ -8,7 +8,7 @@ from bee_rpc.client import Dir
 from bee_rpc.utils import modify_env
 
 from protos import celaut_pb2
-from src.gateway import Gateway
+from src.gateway import Gateway, GatewayError
 from tests.helpers import FakeGateway, SHA3_256_ID, serve_gateway
 
 SERVICE_ID = "ab" * 32
@@ -36,8 +36,8 @@ class GatewayTest(unittest.TestCase):
         self.server.stop(None)
         self.tmp.cleanup()
 
-    def start(self, registry):
-        self.fake = FakeGateway({SERVICE_ID: "10.0.0.5:8080"}, registry=registry)
+    def start(self, registry, cannot_pay=None):
+        self.fake = FakeGateway({SERVICE_ID: "10.0.0.5:8080"}, registry=registry, cannot_pay=cannot_pay)
         self.server, address = serve_gateway(self.fake)
         return Gateway(address, start_timeout=30, stop_timeout=30)
 
@@ -83,6 +83,15 @@ class GatewayTest(unittest.TestCase):
         metadata = self.fake.requests[1][1]
         self.assertIsInstance(metadata, celaut_pb2.Metadata)
         self.assertEqual([h.value.hex() for h in metadata.hashtag.hash], [SERVICE_ID])
+
+    def test_a_balance_that_does_not_pay_is_not_answered_with_the_service(self):
+        # nodo #563: the sorter pays the start of a child from its balance. A refusal for
+        # the balance is not a missing service, so the service is not sent.
+        gateway = self.start(registry={SERVICE_ID}, cannot_pay={SERVICE_ID})
+        with self.assertRaises(GatewayError) as raised:
+            gateway.start_service(SERVICE_ID, service_dir=self.service_file, metadata_file=self.metadata_file)
+        self.assertIn("nodo increase_deposit", str(raised.exception))
+        self.assertEqual(len(self.fake.requests), 1)
 
     def test_stop_service(self):
         gateway = self.start(registry={SERVICE_ID})
