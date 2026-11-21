@@ -1,6 +1,7 @@
 {
     "tag": "sort-sat-solver",
     "architecture": "linux/amd64",
+    "uses_gateway": true,
     "init": {
         "entry_path": ["satsorter", "start.sh"]
     },

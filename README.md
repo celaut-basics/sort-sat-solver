@@ -42,7 +42,10 @@ node that runs it (celaut-project/nodo, branch `dev`).
   `.dependencies`: `REGRESSION`, `RANDOM`, and one `SOLVER_<NAME>` key for
   each solver.
 - The sorter reads the gateway address and its environment variables from
-  `/__config__`.
+  `/__config__`. Its `service.json` has `"uses_gateway": true` (nodo #648):
+  without it the node writes no `gateway` in `__config__` and opens no
+  firewall rule to the gateway, and the sorter stops at start with "The
+  instance has no address".
 - At the first call to a child service, the sorter calls
   `Gateway.StartService` with the hash of the service. If the node does not
   have the service, the sorter sends it from its filesystem. The sorter is a
